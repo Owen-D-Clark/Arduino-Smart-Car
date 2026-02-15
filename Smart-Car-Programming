@@ -1,0 +1,355 @@
+MPU ROTATIONAL CONTROL CODE: 
+
+#include <Wire.h> 
+
+#include <MPU6050.h> 
+
+const int MPU = 0x68; 
+
+int motor1F = 5; 
+
+int motor1B = 4; 
+
+int motor2F = 3; 
+
+int motor2B = 2; 
+
+ 
+
+  MPU6050 mpu; 
+
+  int16_t ax, ay, az; 
+
+  int16_t gx, gy, gz; 
+
+ 
+
+  struct MyData{ 
+
+    byte X; 
+
+    byte Y; 
+
+  }; 
+
+  MyData Data; 
+
+  
+
+ 
+
+  int yMin = 85; 
+
+  int yMax = 160; 
+
+ 
+
+  int xMin = 80; 
+
+  int xMax = 170; 
+
+ 
+
+  void setup(){ 
+
+ 
+
+  Wire.begin(); 
+
+  Serial.begin(9600); 
+
+  mpu.initialize(); 
+
+ 
+
+if (!mpu.testConnection()) { 
+
+    Serial.println("MPU6050 connection failed"); 
+
+    while (1); // Stop further execution 
+
+  } 
+
+ 
+
+  pinMode(motor1F, OUTPUT); 
+
+  pinMode(motor2F, OUTPUT); 
+
+  pinMode(motor1B, OUTPUT); 
+
+  pinMode(motor2B, OUTPUT); 
+
+} 
+
+void loop() { 
+
+  
+
+  
+
+  mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz); 
+
+  Data.X = map(ax, -17000, 17000, 0, 255); 
+
+  Data.Y = map(ay, -17000, 17000, 0, 255); 
+
+ 
+
+  digitalWrite(motor1F, LOW); 
+
+  digitalWrite(motor1B, LOW); 
+
+  digitalWrite(motor2F, LOW); 
+
+  digitalWrite(motor2B, LOW); 
+
+ 
+
+  //Serial.println(Data.X); 
+
+  //Serial.println(Data.Y); 
+
+      // Control logic for motors 
+
+    if (Data.Y < yMin) { 
+
+        Serial.println("Forward"); 
+
+        digitalWrite(motor1F, HIGH); 
+
+        digitalWrite(motor2F, HIGH); 
+
+    } else if (Data.Y > yMax) { 
+
+        Serial.println("Back"); 
+
+        digitalWrite(motor1B, HIGH); 
+
+        digitalWrite(motor2B, HIGH); 
+
+    } else if (Data.X < xMin) { 
+
+        Serial.println("Left"); 
+
+        digitalWrite(motor1B, HIGH); 
+
+        digitalWrite(motor2F, HIGH); 
+
+    } else if (Data.X > xMax) { 
+
+        Serial.println("Right"); 
+
+        digitalWrite(motor1F, HIGH); 
+
+        digitalWrite(motor2B, HIGH); 
+
+    }else if (Data.Y >= yMin && Data.Y <= yMax && Data.X >= xMin && Data.X <= xMax) { 
+
+        Serial.println("Stop"); 
+
+        digitalWrite(motor1F, LOW); 
+
+        digitalWrite(motor1B, LOW); 
+
+        digitalWrite(motor2F, LOW); 
+
+        digitalWrite(motor2B, LOW); 
+
+    } 
+
+  
+
+  
+
+  delay(50); 
+
+} 
+
+ 
+
+//1f left forward 
+
+//1b left back 
+
+//2f right forward 
+
+//2b right back 
+
+ 
+
+//sda to a4 
+
+//scl to a5 
+
+JOYSTICK DIRECTIONAL CONTROL CODE: 
+
+#include <Wire.h> 
+
+int motor1F = 5; 
+
+int motor1B = 4; 
+
+int motor2F = 3; 
+
+int motor2B = 2; 
+
+ 
+
+const int joystickXpin = A0; 
+
+const int joystickYpin = A1; 
+
+ 
+
+  struct MyData{ 
+
+    byte X; 
+
+    byte Y; 
+
+  }; 
+
+  MyData Data; 
+
+  
+
+ 
+
+  int yMin = 85; 
+
+  int yMax = 160; 
+
+ 
+
+  int xMin = 80; 
+
+  int xMax = 170; 
+
+ 
+
+  void setup(){ 
+
+ 
+
+  Wire.begin(); 
+
+  Serial.begin(9600); 
+
+ 
+
+  pinMode(motor1F, OUTPUT); 
+
+  pinMode(motor2F, OUTPUT); 
+
+  pinMode(motor1B, OUTPUT); 
+
+  pinMode(motor2B, OUTPUT); 
+
+} 
+
+void loop() { 
+
+  
+
+  int joystickX = analogRead(joystickXpin); 
+
+  int joystickY = analogRead(joystickYpin); 
+
+ 
+
+  Data.X = map(joystickX, 0, 1023, 0, 255); 
+
+  Data.Y = map(joystickY, 0, 1023, 0, 255); 
+
+ 
+
+  digitalWrite(motor1F, LOW); 
+
+  digitalWrite(motor1B, LOW); 
+
+  digitalWrite(motor2F, LOW); 
+
+  digitalWrite(motor2B, LOW); 
+
+ 
+
+  //Serial.println(Data.X); 
+
+  //Serial.println(Data.Y); 
+
+      // Control logic for motors 
+
+    if (Data.Y < yMin) { 
+
+  Serial.println("Forward"); 
+
+  digitalWrite(motor1F, HIGH); 
+
+  digitalWrite(motor2F, HIGH); 
+
+} else if (Data.Y > yMax) { 
+
+  Serial.println("Back"); 
+
+  digitalWrite(motor1B, HIGH); 
+
+  digitalWrite(motor2B, HIGH); 
+
+} else if (Data.X < xMin) { 
+
+  Serial.println("Left"); 
+
+  digitalWrite(motor1B, HIGH); 
+
+  digitalWrite(motor2F, HIGH); 
+
+} else if (Data.X > xMax) { 
+
+  Serial.println("Right"); 
+
+  digitalWrite(motor1F, HIGH); 
+
+  digitalWrite(motor2B, HIGH); 
+
+} else if (Data.Y >= yMin && Data.Y <= yMax && Data.X >= xMin && Data.X <= xMax) { 
+
+  Serial.println("Stop"); 
+
+  digitalWrite(motor1F, LOW); 
+
+  digitalWrite(motor1B, LOW); 
+
+  digitalWrite(motor2F, LOW); 
+
+  digitalWrite(motor2B, LOW); 
+
+} 
+
+ 
+
+  
+
+  
+
+  delay(15); 
+
+} 
+
+ 
+
+//1f left forward 
+
+//1b left back 
+
+//2f right forward 
+
+//2b right back 
+
+ 
+
+//X to a0 
+
+ 
+
+//Y to a1 
